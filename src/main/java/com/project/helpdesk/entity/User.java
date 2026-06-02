@@ -35,7 +35,7 @@ public class User {
     @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private UserStatus status = UserStatus.ACTIVE;
+    private UserStatus status = UserStatus.PENDING;
 
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;

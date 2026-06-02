@@ -9,6 +9,7 @@ import com.project.helpdesk.entity.User;
 import com.project.helpdesk.entity.UserRole;
 import com.project.helpdesk.exception.ForbiddenActionException;
 import com.project.helpdesk.repository.TicketRepository;
+import com.project.helpdesk.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -21,10 +22,12 @@ import java.util.List;
 public class TicketService {
     private final TicketRepository ticketRepository;
     private final CurrentUserService currentUserService;
+    private final UserRepository userRepository;
 
-    public TicketService(TicketRepository ticketRepository, CurrentUserService currentUserService) {
+    public TicketService(TicketRepository ticketRepository, CurrentUserService currentUserService, UserRepository userRepository) {
         this.ticketRepository = ticketRepository;
         this.currentUserService = currentUserService;
+        this.userRepository = userRepository;
     }
 
     public List<TicketResponse> findAll() {
@@ -41,6 +44,18 @@ public class TicketService {
                 .orElseThrow(() -> new EntityNotFoundException("Ticket not found with ID: " + id));
 
         return toResponse(existing);
+    }
+
+    public List<TicketResponse> findAllByUserEmail(String email) {
+        if (email == null) {
+            throw new IllegalArgumentException("Email can't be null");
+        }
+
+        User existing = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+
+        List<Ticket> tickets = ticketRepository.findAllByAuthor_Email(email);
+
+        return tickets.stream().map(this::toResponse).toList();
     }
 
     public TicketResponse create(TicketCreateRequest request) {

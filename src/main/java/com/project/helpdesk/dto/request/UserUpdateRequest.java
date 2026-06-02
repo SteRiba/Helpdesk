@@ -7,8 +7,6 @@ public record UserUpdateRequest(
         String lastName,
 
         @Email
-        String email,
-        String password,
-        String confirmPassword
+        String email
 ) {
 }
