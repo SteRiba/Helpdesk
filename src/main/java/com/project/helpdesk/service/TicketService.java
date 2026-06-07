@@ -1,6 +1,7 @@
 package com.project.helpdesk.service;
 
 import com.project.helpdesk.dto.request.TicketCreateRequest;
+import com.project.helpdesk.dto.request.TicketStatusUpdateRequest;
 import com.project.helpdesk.dto.request.TicketUpdateRequest;
 import com.project.helpdesk.dto.response.TicketResponse;
 import com.project.helpdesk.entity.Ticket;
@@ -146,11 +147,15 @@ public class TicketService {
         return toResponse(updated);
     }
 
-    public TicketResponse changeStatus(Integer id, TicketStatus status) {
+    public TicketResponse changeStatus(Integer id, TicketStatusUpdateRequest request) {
         validateId(id);
 
-        if (status == null) {
-            throw new IllegalArgumentException("TicketStatus can't be null");
+        if (request == null) {
+            throw new IllegalArgumentException("TicketStatusUpdateRequest can't be null");
+        }
+
+        if (request.status() == null) {
+            throw new IllegalArgumentException("Status can't be null");
         }
 
         Ticket existing = ticketRepository.findById(id)
@@ -166,9 +171,9 @@ public class TicketService {
             throw new ForbiddenActionException("You don't have permission to complete this action");
         }
 
-        existing.setStatus(status);
+        existing.setStatus(request.status());
 
-        if (status == TicketStatus.CLOSED) {
+        if (request.status() == TicketStatus.CLOSED) {
             existing.setClosedAt(LocalDateTime.now());
         } else {
             existing.setClosedAt(null);
