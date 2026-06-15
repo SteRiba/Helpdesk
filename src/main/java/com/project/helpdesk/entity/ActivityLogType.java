@@ -1,0 +1,15 @@
+package com.project.helpdesk.entity;
+
+public enum ActivityLogType {
+    TICKET_CREATED,
+    TICKET_UPDATED,
+    TICKET_ASSIGNED,
+    TICKET_STATUS_CHANGED,
+    TICKET_PRIORITY_CHANGED,
+    TICKET_CLOSED,
+
+    USER_CREATED,
+    USER_UPDATED,
+    USER_STATUS_CHANGED,
+    USER_ROLE_CHANGED
+}

@@ -73,17 +73,4 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/users/me/delete")
-    public ResponseEntity<Void> deleteMe() {
-        userService.deleteMe();
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/admin/users/{id}/delete")
-    public ResponseEntity<Void> deleteUser(@PathVariable @Positive Integer id) {
-        userService.deleteUserById(id);
-
-        return ResponseEntity.noContent().build();
-    }
 }

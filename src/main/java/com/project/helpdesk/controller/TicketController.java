@@ -29,6 +29,13 @@ public class TicketController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/admin/tickets")
+    public ResponseEntity<List<TicketResponse>> findAllTickets() {
+        List<TicketResponse> tickets = ticketService.findAll();
+
+        return ResponseEntity.ok(tickets);
+    }
+
     @PostMapping("/tickets")
     public ResponseEntity<TicketResponse> openNewTicket(@RequestBody @Valid TicketCreateRequest request) {
         TicketResponse response = ticketService.create(request);

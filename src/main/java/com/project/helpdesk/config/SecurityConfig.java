@@ -27,7 +27,8 @@ public class SecurityConfig {
                                 "/index.html",
                                 "/pages/**",
                                 "/css/**",
-                                "/js/**"
+                                "/js/**",
+                                "/favicon.ico"
                         ).permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/agent/**").hasAnyRole("AGENT", "ADMIN")

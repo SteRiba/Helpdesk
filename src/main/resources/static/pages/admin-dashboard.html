@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Helpdesk - Admin Dashboard</title>
     <link rel="stylesheet" href="../css/style.css">
-    <script type="module" src="../js/admin-dashboard.js"></script>
 </head>
 <body class="app-page admin-page">
 <header class="app-header">
@@ -26,20 +25,6 @@
 
     <a class="ghost-button logout-btn" href="login.html">Logout</a>
 </header>
-<script>
-    if (!sessionStorage.getItem("token") || sessionStorage.getItem("userRole") !== "ADMIN") {
-        window.location.replace("/index.html")
-    }
-
-    document.querySelector(".logout-btn")?.addEventListener("click", (event) => {
-        event.preventDefault();
-        sessionStorage.removeItem("token");
-        sessionStorage.removeItem("userEmail");
-        sessionStorage.removeItem("userRole");
-        window.location.replace("/pages/login.html");
-    });
-</script>
-
 <main class="home-shell admin-shell">
     <section class="admin-hero" id="overview" aria-labelledby="admin-title">
         <div class="admin-hero-copy">
@@ -60,119 +45,92 @@
     <section class="admin-stats" aria-label="Metriche principali">
         <article class="stat-card">
             <span class="stat-label">Ticket aperti</span>
-            <strong>18</strong>
-            <span class="stat-trend">+4 da ieri</span>
+            <strong id="num-opened-tickets">18</strong>
+            <span class="stat-trend">+<span id="num-ticket-from-yd">4</span> da ieri</span>
         </article>
 
         <article class="stat-card">
             <span class="stat-label">In lavorazione</span>
-            <strong>11</strong>
-            <span class="stat-trend good">72% assegnati</span>
+            <strong id="num-ticket-in-progress">11</strong>
+            <span class="stat-trend good"><span id="assigned-ticket-percentage">72%</span> assegnati</span>
         </article>
 
         <article class="stat-card">
             <span class="stat-label">Utenti attivi</span>
-            <strong>42</strong>
-            <span class="stat-trend">3 nuovi questa settimana</span>
+            <strong id="num-active-users">42</strong>
+            <span class="stat-trend"><span id="num-total-users">0</span> account totali</span>
         </article>
 
         <article class="stat-card">
-            <span class="stat-label">SLA medio</span>
-            <strong>6h</strong>
-            <span class="stat-trend good">entro target</span>
+            <span class="stat-label">Non assegnati</span>
+            <strong id="num-unassigned-tickets">0</strong>
+            <span class="stat-trend">ticket da prendere in carico</span>
         </article>
     </section>
 
-    <section class="admin-grid">
-        <section class="admin-panel admin-panel-large" id="tickets" aria-labelledby="admin-ticket-title">
+    <section class="admin-panel admin-data-section" id="tickets" aria-labelledby="admin-ticket-title">
+        <div class="section-heading-row">
             <div class="section-heading">
                 <p class="eyebrow">Coda supporto</p>
                 <h2 id="admin-ticket-title">Ticket da gestire</h2>
-                <p>Vista sintetica per priorita, stato e assegnazione.</p>
+                <p>Vista operativa per priorita, stato e assegnazione.</p>
             </div>
 
-            <div class="admin-table-wrap">
-                <table class="admin-table">
-                    <thead>
-                    <tr>
-                        <th>Ticket</th>
-                        <th>Categoria</th>
-                        <th>Priorita</th>
-                        <th>Stato</th>
-                        <th>Assegnato</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>
-                            <strong>#1042 VPN non raggiungibile</strong>
-                            <span>Mario Rossi</span>
-                        </td>
-                        <td>Network</td>
-                        <td><span class="pill pill-priority">Urgente</span></td>
-                        <td><span class="pill pill-status">Aperto</span></td>
-                        <td>Non assegnato</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <strong>#1038 Reset MFA</strong>
-                            <span>Giulia Bianchi</span>
-                        </td>
-                        <td>Account</td>
-                        <td><span class="pill pill-priority">Alta</span></td>
-                        <td><span class="pill pill-status">In lavorazione</span></td>
-                        <td>Luca Ferri</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <strong>#1031 Installazione software</strong>
-                            <span>Elena Neri</span>
-                        </td>
-                        <td>Software</td>
-                        <td><span class="pill">Media</span></td>
-                        <td><span class="pill pill-status">In attesa</span></td>
-                        <td>Sara Conte</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+            <span class="table-count"><span id="ticket-table-count">0</span> ticket</span>
+        </div>
 
-        <aside class="admin-panel" id="users" aria-labelledby="admin-users-title">
-            <div class="section-heading compact">
+        <div class="admin-table-wrap admin-table-scroll">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Ticket</th>
+                    <th>Categoria</th>
+                    <th>Priorita</th>
+                    <th>Stato</th>
+                    <th>Assegnato</th>
+                    <th>Creato</th>
+                </tr>
+                </thead>
+                <tbody id="admin-ticket-table-body">
+                <tr>
+                    <td colspan="6">Caricamento ticket...</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="admin-panel admin-data-section" id="users" aria-labelledby="admin-users-title">
+        <div class="section-heading-row">
+            <div class="section-heading">
                 <p class="eyebrow">Utenti</p>
                 <h2 id="admin-users-title">Gestione account</h2>
+                <p>Elenco completo degli utenti registrati nella piattaforma.</p>
             </div>
 
-            <div class="user-stack">
-                <article class="user-row">
-                    <span class="user-avatar">AR</span>
-                    <div>
-                        <strong>Admin Rossi</strong>
-                        <span>ADMIN &middot; Attivo</span>
-                    </div>
-                </article>
-
-                <article class="user-row">
-                    <span class="user-avatar">LF</span>
-                    <div>
-                        <strong>Luca Ferri</strong>
-                        <span>AGENT &middot; Attivo</span>
-                    </div>
-                </article>
-
-                <article class="user-row">
-                    <span class="user-avatar muted">MB</span>
-                    <div>
-                        <strong>Marco Blu</strong>
-                        <span>USER &middot; Disabilitato</span>
-                    </div>
-                </article>
+            <div class="section-actions">
+                <span class="table-count"><span id="user-table-count">0</span> utenti</span>
+                <button id="open-create-user-modal" class="secondary-button" type="button">Nuovo utente</button>
             </div>
+        </div>
 
-            <button id="open-create-user-modal" class="secondary-button admin-full-button" type="button">Nuovo utente
-            </button>
-        </aside>
+        <div class="admin-table-wrap admin-table-scroll">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Utente</th>
+                    <th>Email</th>
+                    <th>Ruolo</th>
+                    <th>Stato</th>
+                </tr>
+                </thead>
+                <tbody id="admin-user-table-body">
+                <tr>
+                    <td colspan="4">Caricamento utenti...</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </section>
 
     <section class="admin-panel" id="activity" aria-labelledby="admin-activity-title">
@@ -278,5 +236,6 @@
 </div>
 
 <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+<script type="module" src="../js/admin-dashboard.js"></script>
 </body>
 </html>

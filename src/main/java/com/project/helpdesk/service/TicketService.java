@@ -4,11 +4,9 @@ import com.project.helpdesk.dto.request.TicketCreateRequest;
 import com.project.helpdesk.dto.request.TicketStatusUpdateRequest;
 import com.project.helpdesk.dto.request.TicketUpdateRequest;
 import com.project.helpdesk.dto.response.TicketResponse;
-import com.project.helpdesk.entity.Ticket;
-import com.project.helpdesk.entity.TicketStatus;
-import com.project.helpdesk.entity.User;
-import com.project.helpdesk.entity.UserRole;
+import com.project.helpdesk.entity.*;
 import com.project.helpdesk.exception.ForbiddenActionException;
+import com.project.helpdesk.repository.ActivityLogRepository;
 import com.project.helpdesk.repository.TicketRepository;
 import com.project.helpdesk.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,11 +20,13 @@ import java.util.List;
 @Transactional
 public class TicketService {
     private final TicketRepository ticketRepository;
+    private final ActivityLogRepository activityLogRepository;
     private final CurrentUserService currentUserService;
     private final UserRepository userRepository;
 
-    public TicketService(TicketRepository ticketRepository, CurrentUserService currentUserService, UserRepository userRepository) {
+    public TicketService(TicketRepository ticketRepository, ActivityLogRepository activityLogRepository, CurrentUserService currentUserService, UserRepository userRepository) {
         this.ticketRepository = ticketRepository;
+        this.activityLogRepository = activityLogRepository;
         this.currentUserService = currentUserService;
         this.userRepository = userRepository;
     }
@@ -76,6 +76,17 @@ public class TicketService {
         Ticket ticket = toEntity(request);
         ticket.setAuthor(author);
         Ticket saved = ticketRepository.save(ticket);
+
+        ActivityLog activityLog = ActivityLog.builder()
+                .type(ActivityLogType.TICKET_CREATED)
+                .title("Ticket created")
+                .description("New ticket open")
+                .entityType("Ticket")
+                .entityId(saved.getId())
+                .author(author)
+                .build();
+
+        activityLogRepository.save(activityLog);
 
         return toResponse(saved);
     }

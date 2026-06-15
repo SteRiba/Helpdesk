@@ -1,9 +1,35 @@
 const loginForm = document.querySelector("#login-form");
 const loginMessage = document.querySelector("#login-message");
 
+function redirectByRole(role) {
+    if (role === "ADMIN") {
+        window.location.replace("/pages/admin-dashboard.html");
+        return;
+    }
+
+    window.location.replace("/index.html");
+}
+
+function clearSession() {
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userEmail");
+    sessionStorage.removeItem("userRole");
+}
+
 function setMessage(message, type) {
     loginMessage.textContent = message;
     loginMessage.className = `form-message ${type || ""}`.trim();
+}
+
+function redirectIfAlreadyAuthenticated() {
+    const token = sessionStorage.getItem("token");
+    const role = sessionStorage.getItem("userRole");
+
+    if (!token || !role) {
+        return;
+    }
+
+    redirectByRole(role);
 }
 
 loginForm?.addEventListener("submit", async (event) => {
@@ -42,17 +68,13 @@ loginForm?.addEventListener("submit", async (event) => {
         sessionStorage.setItem("userRole", user.role);
         setMessage("Accesso riuscito.", "success");
 
-        if (user.role === "ADMIN") {
-            window.location.replace("/pages/admin-dashboard.html");
-        } else {
-            window.location.replace("/index.html");
-        }
+        redirectByRole(user.role);
     } catch (error) {
-        sessionStorage.removeItem("token");
-        sessionStorage.removeItem("userEmail");
-        sessionStorage.removeItem("userRole");
+        clearSession();
         setMessage(error.message || "Accesso non riuscito.", "error");
     } finally {
         submitButton.disabled = false;
     }
 });
+
+redirectIfAlreadyAuthenticated();

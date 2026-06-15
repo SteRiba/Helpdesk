@@ -1,7 +1,7 @@
 package com.project.helpdesk.service;
 
-import com.project.helpdesk.dto.request.ChangePasswordRequest;
 import com.project.helpdesk.dto.request.AdminUserCreateRequest;
+import com.project.helpdesk.dto.request.ChangePasswordRequest;
 import com.project.helpdesk.dto.request.UserCreateRequest;
 import com.project.helpdesk.dto.request.UserUpdateRequest;
 import com.project.helpdesk.dto.response.UserResponse;
@@ -23,12 +23,14 @@ import java.util.Optional;
 @Transactional
 public class UserService {
     private final UserRepository userRepository;
+    private final ActivityLogService activityLogService;
     private final CurrentUserService currentUserService;
     private final PasswordEncoder passwordEncoder;
 
 
-    public UserService(UserRepository userRepository, CurrentUserService currentUserService, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, ActivityLogService activityLogService, CurrentUserService currentUserService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.activityLogService = activityLogService;
         this.currentUserService = currentUserService;
         this.passwordEncoder = passwordEncoder;
     }
@@ -90,6 +92,12 @@ public class UserService {
             throw new IllegalArgumentException("Passwords don't match");
         }
 
+        User author = currentUserService.getCurrentUser();
+
+        if (author.getRole() != UserRole.ADMIN) {
+            throw new ForbiddenActionException("You don't have permission to complete this action");
+        }
+
         User user = User.builder()
                 .firstName(request.firstName())
                 .lastName(request.lastName())
@@ -100,6 +108,8 @@ public class UserService {
                 .build();
 
         User saved = userRepository.save(user);
+
+        activityLogService.logUserCreated(saved, author);
 
         return toResponse(saved);
     }
@@ -171,9 +181,15 @@ public class UserService {
         User existing = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + id));
 
+        if (existing.getStatus() == UserStatus.ACTIVE) {
+            return toResponse(existing);
+        }
+
         existing.setStatus(UserStatus.ACTIVE);
 
         User activated = userRepository.save(existing);
+
+        activityLogService.logUserActivated(activated, current);
 
         return toResponse(activated);
     }
@@ -194,36 +210,17 @@ public class UserService {
             throw new ForbiddenActionException("You can't disable yourself");
         }
 
+        if (existing.getStatus() == UserStatus.DISABLED) {
+            return toResponse(existing);
+        }
+
         existing.setStatus(UserStatus.DISABLED);
 
-        User updated = userRepository.save(existing);
+        User disabled = userRepository.save(existing);
 
-        return toResponse(updated);
-    }
+        activityLogService.logUserDisabled(disabled, current);
 
-    public void deleteMe() {
-        User current = currentUserService.getCurrentUser();
-
-        if (current.getRole() != UserRole.CUSTOMER) {
-            throw new ForbiddenActionException("You can't delete yourself");
-        }
-
-        userRepository.delete(current);
-    }
-
-    public void deleteUserById(Integer id) {
-        validateId(id);
-
-        User current = currentUserService.getCurrentUser();
-
-        if (current.getRole() != UserRole.ADMIN) {
-            throw new ForbiddenActionException("You don't have permission to complete this action");
-        }
-
-        User existing = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + id));
-
-        userRepository.deleteById(id);
+        return toResponse(disabled);
     }
 
     //    Helpers
@@ -238,7 +235,7 @@ public class UserService {
 
     private UserResponse toResponse(User user) {
         String fullName = user.getFirstName().concat(" ").concat(user.getLastName());
-        return new UserResponse(user.getId(), fullName, user.getEmail(), user.getRole(), user.getStatus());
+        return new UserResponse(user.getId(), fullName, user.getEmail(), user.getRole(), user.getStatus(), user.getCreatedAt());
     }
 
     private void validateId(Integer id) {
@@ -252,6 +249,5 @@ public class UserService {
             throw new IllegalArgumentException("UserUpdateRequest can't be null");
         }
     }
-
 
 }

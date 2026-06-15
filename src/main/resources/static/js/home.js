@@ -1,5 +1,5 @@
-import { getToken, logout } from "./auth-utils.js";
-import { showToast } from "./toast.js";
+import {getToken, logout} from "./auth-utils.js";
+import {showToast} from "./toast.js";
 
 const logoutBtn = document.querySelector(".logout-btn");
 const ticketForm = document.querySelector(".ticket-form");
@@ -44,6 +44,7 @@ async function getMyTickets() {
     const token = getToken();
 
     if (!token) {
+        window.location.replace("/pages/login.html");
         return;
     }
 

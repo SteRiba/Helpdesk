@@ -565,6 +565,7 @@ textarea:focus {
 .pill {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     min-height: 28px;
     border-radius: 999px;
     padding: 0 10px;
@@ -572,7 +573,10 @@ textarea:focus {
     background: #edf2f7;
     font-size: 12px;
     font-weight: 900;
+    line-height: 1;
+    text-align: center;
     text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .pill-status {
@@ -580,9 +584,60 @@ textarea:focus {
     background: #e0f2fe;
 }
 
-.pill-priority {
+.pill-priority-low {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.pill-priority-medium {
     color: #92400e;
     background: #fef3c7;
+}
+
+.pill-priority-high {
+    color: #9f1239;
+    background: #ffe4e6;
+}
+
+.pill-priority-urgent {
+    color: #ffffff;
+    background: #dc2626;
+}
+
+.pill-status-open {
+    color: #075985;
+    background: #e0f2fe;
+}
+
+.pill-status-in-progress {
+    color: #1d4ed8;
+    background: #dbeafe;
+}
+
+.pill-status-pending {
+    color: #92400e;
+    background: #fef3c7;
+}
+
+.pill-status-resolved,
+.pill-status-closed {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.pill-role-admin {
+    color: #581c87;
+    background: #f3e8ff;
+}
+
+.pill-role-agent {
+    color: #075985;
+    background: #e0f2fe;
+}
+
+.pill-role-customer {
+    color: #334155;
+    background: #e2e8f0;
 }
 
 /* ADMIN DASHBOARD */
@@ -687,29 +742,68 @@ textarea:focus {
     color: var(--success);
 }
 
-.admin-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 340px;
-    gap: 24px;
-    align-items: start;
-}
-
 .admin-panel {
     padding: 32px;
 }
 
-.admin-panel-large {
+.admin-data-section {
     min-width: 0;
+}
+
+.section-heading-row {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 22px;
+}
+
+.section-heading-row .section-heading {
+    margin-bottom: 0;
+}
+
+.section-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.table-count {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0 14px;
+    color: var(--muted);
+    background: #fbfdff;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
 }
 
 .admin-table-wrap {
     overflow-x: auto;
 }
 
+.admin-table-scroll {
+    max-height: 560px;
+    overflow: auto;
+}
+
 .admin-table {
     width: 100%;
-    min-width: 720px;
+    min-width: 900px;
     border-collapse: collapse;
+}
+
+.admin-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #ffffff;
 }
 
 .admin-table th,
@@ -747,53 +841,8 @@ textarea:focus {
     color: var(--muted);
 }
 
-.user-stack {
-    display: grid;
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-.user-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 14px;
-    background: #fbfdff;
-}
-
-.user-avatar {
-    display: grid;
-    place-items: center;
-    flex: 0 0 42px;
-    width: 42px;
-    height: 42px;
-    border-radius: 8px;
-    color: #ffffff;
-    background: var(--primary);
-    font-size: 13px;
-    font-weight: 900;
-}
-
-.user-avatar.muted {
-    background: #64748b;
-}
-
-.user-row strong,
-.user-row span {
-    display: block;
-}
-
-.user-row span {
-    margin-top: 3px;
-    color: var(--muted);
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.admin-full-button {
-    width: 100%;
+.admin-table td .pill {
+    display: inline-flex;
 }
 
 .activity-list {
@@ -995,8 +1044,7 @@ textarea:focus {
     }
 
     .hero-band,
-    .workspace-grid,
-    .admin-grid {
+    .workspace-grid {
         grid-template-columns: 1fr;
     }
 
@@ -1011,6 +1059,15 @@ textarea:focus {
 
     .admin-actions {
         justify-content: flex-start;
+    }
+
+    .section-heading-row {
+        flex-direction: column;
+    }
+
+    .section-actions {
+        justify-content: flex-start;
+        width: 100%;
     }
 
     .admin-stats {
