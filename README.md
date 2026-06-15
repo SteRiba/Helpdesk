@@ -62,9 +62,3 @@ Authorization: Bearer <token>
 ```
 
 Il frontend salva il token in `sessionStorage` e lo elimina al logout.
-
-In produzione impostare una chiave JWT esplicita:
-
-```powershell
-$env:JWT_SECRET="una-chiave-lunga-e-segreta"
-```
